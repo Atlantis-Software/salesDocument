@@ -107,9 +107,9 @@ Example :
 ```javascript
 table: {
   widths: ['*', 45, 15, 50, 50],
-  headerRows: 1, // Les x premières lignes sont des entêtes (dans notre cas 1 ligne d'entête)
-  keepWithHeaderRows: 1, //Pour remettre les entêtes du tableau sur les pages suivantes
-  dontBreakRows: true, // Pour qu'une ligne ne soit pas coupée entre 2 pages
+  headerRows: 1, // the first x lines are headers ( in our case 1 header line)
+  keepWithHeaderRows: 1, //To replace the table headers on the following pages
+  dontBreakRows: true, // So that a line is not cut between 2 pages
   forOrder: ["normal", "array", "nomenclature", "commentaire"],
   body: [
     [

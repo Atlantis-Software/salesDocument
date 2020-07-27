@@ -6,9 +6,8 @@
   "author": "Atlantis Software",
   "license": "MIT",
   "dependencies": {
-    "lodash": "~4.17.10",
-    "asynk": "~0.0.12",
-    "pdfmake": "Atlantis-Software/pdfmake#atlantis"
+    "lodash": "~4.17.19",
+    "asynk": "~0.0.12"
   },
   "devDependencies": {
     "eslint": "~5.4.0"
