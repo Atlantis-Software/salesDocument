@@ -114,176 +114,93 @@ var model = {
         }
       },
       table: {
-        widths: [50,178,35,16,38,20,20,35,37,2],
-        headerRows: 1,
-        keepWithHeaderRows: 1,
-        dontBreakRows: true,
-        forOrder: ["normal", "commentaire", "nomenclature", "array"],
+        widths: ['*', 45, 15, 50, 50],
+        headerRows: 1, // Les x premières lignes sont des entêtes (dans notre cas 1 ligne d'entête)
+        keepWithHeaderRows: 1, //Pour remettre les entêtes du tableau sur les pages suivantes
+        dontBreakRows: true, // Pour qu'une ligne ne soit pas coupée entre 2 pages
+        forOrder: ["normal", "array", "nomenclature", "commentaire"],
         body: [
           [
-            {
-              text: 'CODE',
-              alignment: 'left',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'DESIGNATION',
-              alignment: 'left',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'QTY',
-              alignment: 'right',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'U',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'P.PRICE',
-              alignment: 'right',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'R.',
-              alignment: 'right',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'R.C.',
-              alignment: 'right',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'N.U price',
-              alignment: 'right',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'TOTAL E.T.',
-              alignment: 'right',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }, {
-              text: 'T',
-              alignment: 'center',
-              style: 'smallbold',
-              border: [true, true, true, true]
-            }
+          	{text: 'DESIGNATION', alignment: 'left',	style: 'smallbold', border: [true, true, true, true]},
+						{text: 'QTE A PREP', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+						{text: 'U', alignment: 'center',	style: 'smallbold', border: [true, true, true, true]},
+						{text: 'EMPLAC.', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+						{text: 'RESTE', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
           ],
           [
-            {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.code</sDoc>'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.designation</sDoc>'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.quantity</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.unity</sDoc>'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.publicPrice</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.R</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.RC</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.netUnitPrice</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.totalExclTaxes</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: 'T'
-            }
-          ],
-          [
-            {
-              colSpan: 10,
-              border: [
-                true, false, true, false
-              ],
-              text: '<sDoc>ligne.comment</sDoc>'
-            },
-            ''
-          ],
-          [
-            {
-              style: 'StyleLigne',
-              text: '--> <sDoc>ligne.code</sDoc>'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.designation</sDoc>'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.quantity</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.unity</sDoc>'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.publicPrice</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.R</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.RC</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.netUnitPrice</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: '<sDoc>ligne.totalExclTaxes</sDoc>',
-              alignment: 'right'
-            }, {
-              style: 'StyleLigne',
-              text: 'T'
-            }
-          ],
-          [
-            {
-              colSpan: 10,
+						//Zone de designation
+						{
               table: {
-                widths: [50,178,35,16,38,20,20,35,37,2],
+                widths: ['*', 'auto'],
+                body: [
+                  [
+                    {text: '<sDoc>ligne.code</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+                    {text: 'Ref Frs : <sDoc>ligne.code</sDoc>', alignment: 'right',	style: 'StyleLigne', border: [false, false, false, false]},
+                  ],
+                  [
+                    {colSpan: 2, text: '<sDoc>ligne.designation</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+                  ],
+                  [
+                    {colSpan: 2, text: 'Stock : <sDoc>ligne.unity</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+                  ],
+                ]
+              }
+
+						},
+						{	style: 'StyleLigne', text:'<sDoc>ligne.publicPrice</sDoc>', alignment: 'right'},
+						{	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
+						{	style: 'StyleLigne', text:'<sDoc>ligne.netUnitPrice</sDoc>'},
+						{	style: 'StyleLigne', text:'<sDoc>ligne.totalExclTaxes</sDoc>'},
+          ],
+          [
+            {
+              colSpan: 5,
+              table: {
+                widths: [150, 165, 35, 20, 35,35],
                 body: [
                   [
                     {text: '<sDoc>line_array.code</sDoc>'},
                     {text: '<sDoc>line_array.designation</sDoc>'},
                     {text: '<sDoc>line_array.quantity</sDoc>',alignment: 'right'},
-                    {text: '<sDoc>line_array.unity</sDoc>'},
-                    {text: '<sDoc>line_array.publicPrice</sDoc>', alignment: 'right'},
-                    {text: '<sDoc>line_array.R</sDoc>', alignment: 'right'},
-                    {text: '<sDoc>line_array.RC</sDoc>', alignment: 'right'},
-                    {text: '<sDoc>line_array.netUnitPrice</sDoc>', alignment: 'right'},
-                    {text: '<sDoc>line_array.totalExclTaxes</sDoc>', alignment: 'right'},
-                    {text: '<sDoc>line_array.T</sDoc>'}
+                    {	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
+
+                    {text: '<sDoc>line_array.T</sDoc>'},
+                    {text: '<sDoc>line_array.totalExclTaxes</sDoc>', alignment: 'right'}
+
                   ]
                 ]
               },
               layout: 'noBorders'
             },
             ''
-          ]
+          ],
+          [
+						//Zone de designation
+						{
+              table: {
+                widths: [10, '*', 'auto'],
+                body: [
+                  [
+                    {text: '->', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+                    {text: '<sDoc>ligne.code</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+                    {text: 'Ref Frs : <sDoc>ligne.code</sDoc>', alignment: 'right',	style: 'StyleLigne', border: [false, false, false, false]},
+                  ],
+                  [
+                    {colSpan: 3, text: '<sDoc>ligne.designation</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+                  ],
+                  [
+                    {colSpan: 3, text: 'Stock : <sDoc>ligne.unity</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+                  ],
+                ]
+              }
+
+						},
+            {	style: 'StyleLigne', text:'<sDoc>ligne.publicPrice</sDoc>', alignment: 'right'},
+						{	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
+						{	style: 'StyleLigne', text:'<sDoc>ligne.netUnitPrice</sDoc>'},
+						{	style: 'StyleLigne', text:'<sDoc>ligne.totalExclTaxes</sDoc>'},
+          ],
+          [{colSpan: 5, border: [true, false, true, false], text: '<sDoc>ligne.comment</sDoc>\n'}, '']
         ]
       }
     },

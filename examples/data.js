@@ -39,7 +39,7 @@ var data = {
       designation:'WOODEN DESK ',
       quantity:'1.000',
       unity:'U',
-      publicPrice:'',
+      publicPrice:'20',
       R:'',
       RC:'',
       netUnitPrice:'256.99',
@@ -66,6 +66,7 @@ var data = {
       quantity:'1.000',
       unity:'U',
       T:'1',
+      level: 1,
       type: "nomenclature"
     },
     {
@@ -74,7 +75,8 @@ var data = {
       quantity:'1.000',
       unity:'U',
       T:'1',
-      type: "nomenclature"
+      type: "nomenclature",
+      level: 3
     },
     {
       comment: 'Deferred delivery for the rest of the invoice',
@@ -91,7 +93,8 @@ var data = {
       netUnitPrice:'160.99',
       totalExclTaxes:'160.99',
       T:'1',
-      type: "normal"
+      type: "nomenclature",
+      level: 2
     }
   ],
   info : {

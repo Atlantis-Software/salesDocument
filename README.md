@@ -36,10 +36,10 @@ import salesDocument from 'salesDocument'
 
 Next we need to create the object :
 ```javascript
-var myObject = new salesDocument(model, data)
+var myObject = new salesDocument()
 ```
 
-We can change model or data after initialisation with setters :
+We set a model and data after initialisation with setters :
 ```javascript
 myObject.setModel(model);
 myObject.setData(data);
@@ -101,78 +101,98 @@ If we want a column to take all rows we just need to put in line `rowSpan: x`, x
 
 It will take automatically all the line.
 
+For a nomenclature line , we must define a level. For each level with have a arrow in the first line.
+
 Example :
 ```javascript
-table : {
-  forOrder: ['normal', 'comment', 'array'],
-  body : [
+table: {
+  widths: ['*', 45, 15, 50, 50],
+  headerRows: 1, // Les x premières lignes sont des entêtes (dans notre cas 1 ligne d'entête)
+  keepWithHeaderRows: 1, //Pour remettre les entêtes du tableau sur les pages suivantes
+  dontBreakRows: true, // Pour qu'une ligne ne soit pas coupée entre 2 pages
+  forOrder: ["normal", "array", "nomenclature", "commentaire"],
+  body: [
+    [
+      {text: 'DESIGNATION', alignment: 'left',	style: 'smallbold', border: [true, true, true, true]},
+      {text: 'QTE A PREP', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+      {text: 'U', alignment: 'center',	style: 'smallbold', border: [true, true, true, true]},
+      {text: 'EMPLAC.', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+      {text: 'RESTE', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+    ],
+    [
+      //Zone de designation
+      {
+        table: {
+          widths: ['*', 'auto'],
+          body: [
+            [
+              {text: '<sDoc>ligne.code</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+              {text: 'Ref Frs : <sDoc>ligne.code</sDoc>', alignment: 'right',	style: 'StyleLigne', border: [false, false, false, false]},
+            ],
+            [
+              {colSpan: 2, text: '<sDoc>ligne.designation</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+            ],
+            [
+              {colSpan: 2, text: 'Stock : <sDoc>ligne.unity</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+            ],
+          ]
+        }
+
+      },
+      {	style: 'StyleLigne', text:'<sDoc>ligne.publicPrice</sDoc>', alignment: 'right'},
+      {	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
+      {	style: 'StyleLigne', text:'<sDoc>ligne.netUnitPrice</sDoc>'},
+      {	style: 'StyleLigne', text:'<sDoc>ligne.totalExclTaxes</sDoc>'},
+    ],
     [
       {
-        text: '<sDoc>tva.index</sDoc>',
-        alignment: 'left'
-      }, {
-        text: '<sDoc>tva.taux</sDoc>',
-        alignment: 'right'
-      }, {
-        text: '<sDoc>tva.baseTVA</sDoc>',
-        alignment: 'right'
-      }, {
-        text: '<sDoc>tva.montantTVA</sDoc>',
-        alignment: 'right'
-      }, {
-        text: '<sDoc>tva.pieceTotalHT</sDoc>',
-        rowSpan: 1,
-        alignment: 'center',
-        fillColor: '#F5F5F5',
-        margin: [0, 8, 0, 0]
-      }, {
-        text: '<sDoc>tva.pieceTotalTva</sDoc>',
-        rowSpan: 1,
-        alignment: 'center',
-        fillColor: '#F5F5F5',
-        margin: [0, 8, 0, 0]
-      }, {
-        text: '<sDoc>tva.pieceTotalNet</sDoc>',
-        rowSpan: 1,
-        alignment: 'center',
-        fillColor: '#F5F5F5',
-        margin: [0, 8, 0, 0]
-      }
-    ]
-  ],
-  [
-    {
-      colSpan: 10,
-      border: [
-        true, false, true, false
-      ],
-      text: '<sDoc>ligne.comment</sDoc>'
-    },
-    ''
-  ],
-  [
-    {
-      colSpan: 10,
-      table: {
-        widths: [50,178,35,16,38,20,20,35,37,2],
-        body: [
-          [
-            {text: '<sDoc>line_array.code</sDoc>'},
-            {text: '<sDoc>line_array.designation</sDoc>'},
-            {text: '<sDoc>line_array.quantity</sDoc>',alignment: 'right'},
-            {text: '<sDoc>line_array.unity</sDoc>'},
-            {text: '<sDoc>line_array.publicPrice</sDoc>', alignment: 'right'},
-            {text: '<sDoc>line_array.R</sDoc>', alignment: 'right'},
-            {text: '<sDoc>line_array.RC</sDoc>', alignment: 'right'},
-            {text: '<sDoc>line_array.netUnitPrice</sDoc>', alignment: 'right'},
-            {text: '<sDoc>line_array.totalExclTaxes</sDoc>', alignment: 'right'},
-            {text: '<sDoc>line_array.T</sDoc>'}
+        colSpan: 5,
+        table: {
+          widths: [150, 165, 35, 20, 35,35],
+          body: [
+            [
+              {text: '<sDoc>line_array.code</sDoc>'},
+              {text: '<sDoc>line_array.designation</sDoc>'},
+              {text: '<sDoc>line_array.quantity</sDoc>',alignment: 'right'},
+              {	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
+
+              {text: '<sDoc>line_array.T</sDoc>'},
+              {text: '<sDoc>line_array.totalExclTaxes</sDoc>', alignment: 'right'}
+
+            ]
           ]
-        ]
+        },
+        layout: 'noBorders'
       },
-      layout: 'noBorders'
-    },
-    ''
+      ''
+    ],
+    [
+      //Zone de designation
+      {
+        table: {
+          widths: [10, '*', 'auto'],
+          body: [
+            [
+              {text: '->', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+              {text: '<sDoc>ligne.code</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+              {text: 'Ref Frs : <sDoc>ligne.code</sDoc>', alignment: 'right',	style: 'StyleLigne', border: [false, false, false, false]},
+            ],
+            [
+              {colSpan: 3, text: '<sDoc>ligne.designation</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+            ],
+            [
+              {colSpan: 3, text: 'Stock : <sDoc>ligne.unity</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+            ],
+          ]
+        }
+
+      },
+      {	style: 'StyleLigne', text:'<sDoc>ligne.publicPrice</sDoc>', alignment: 'right'},
+      {	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
+      {	style: 'StyleLigne', text:'<sDoc>ligne.netUnitPrice</sDoc>'},
+      {	style: 'StyleLigne', text:'<sDoc>ligne.totalExclTaxes</sDoc>'},
+    ],
+    [{colSpan: 5, border: [true, false, true, false], text: '<sDoc>ligne.comment</sDoc>\n'}, '']
   ]
 }
 ```
@@ -185,13 +205,88 @@ var data = {
     date: "01/01/2018",
     ref : "12345678"
   },
-  line : [
+  ligne : [
     {
-      //firstLine
+      line_array: [
+        {
+          code:'1206008034',
+          designation:'LASER PRINTER (REF)',
+          quantity:'1.000',
+          unity:'U',
+          publicPrice:'',
+          R:'',
+          RC:'',
+          netUnitPrice:'353.31',
+          totalExclTaxes:'353.31',
+          T:'1'
+        }, {
+          designation:'- Ecotax',
+          totalExclTaxes:'2.50',
+        }
+      ],
+      type: "array"
     },
     {
-      line_array: []
-      //secondLine array
+      code:'1206008034',
+      designation:'WOODEN DESK ',
+      quantity:'1.000',
+      unity:'U',
+      publicPrice:'20',
+      R:'',
+      RC:'',
+      netUnitPrice:'256.99',
+      totalExclTaxes:'256.99',
+      T:'1',
+      type: "normal"
+    },
+    {
+      code:'1234',
+      designation:'COMPUTER',
+      quantity:'1.000',
+      unity:'U',
+      publicPrice:'',
+      R:'',
+      RC:'',
+      netUnitPrice:'1000.00',
+      totalExclTaxes:'1000.00',
+      T:'1',
+      type: "normal"
+    },
+    {
+      code:'12341',
+      designation:'COMPUTER TOWER',
+      quantity:'1.000',
+      unity:'U',
+      T:'1',
+      level: 1,
+      type: "nomenclature"
+    },
+    {
+      code:'12342',
+      designation:'SCREEN',
+      quantity:'1.000',
+      unity:'U',
+      T:'1',
+      type: "nomenclature",
+      level: 3
+    },
+    {
+      comment: 'Deferred delivery for the rest of the invoice',
+      type: "commentaire"
+    },
+    {
+      code:'1206008034',
+      designation:'OFFICE CHAIRS',
+      quantity:'2.000',
+      unity:'U',
+      publicPrice:'',
+      R:'',
+      RC:'',
+      netUnitPrice:'160.99',
+      totalExclTaxes:'160.99',
+      T:'1',
+      type: "nomenclature",
+      level: 2
     }
   ],
   info : {

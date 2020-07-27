@@ -10,10 +10,9 @@
   "rules": {
     "indent": [1, 2, { "SwitchCase": 1 }],
     "no-undef": 1,
-    "no-console": 1,
+    "no-console": "off",
     "keyword-spacing": 1,
     "no-trailing-spaces": 1,
-
     "no-unused-vars": 1,
     "no-redeclare": 1,
     "no-unused-labels": 1,

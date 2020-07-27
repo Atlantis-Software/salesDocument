@@ -2,9 +2,7 @@ var _ = require("lodash");
 var asynk = require("asynk");
 
 class salesDocument {
-  constructor(model, data) {
-    this._model = model;
-    this._data = data;
+  constructor() {
     // Define default tag for replace data
     this._tag = "sDoc";
     // Select the tag in first group and is content in second group.
@@ -36,6 +34,7 @@ class salesDocument {
     if (!this._data) {
       return new Error("No data load");
     }
+
     this._recursiveFindObject(this.dd, () => {
       cb(this.dd);
     });
@@ -139,10 +138,12 @@ class salesDocument {
         if (!lineType[line.type]) {
           return cb();
         }
+
         var newLine = _.cloneDeep(lineType[line.type]);
         asynk.each(newLine, (column, cb) => {
           if (_.has(column, 'table.body') && column.table.body[0]) {
             var nameObjetLigneArray = this._recoverDataName(column.table.body[0]);
+            // when line is array of data
             if (line[nameObjetLigneArray]) {
               if (line[nameObjetLigneArray] && line[nameObjetLigneArray][0]) {
                 for (var prop in line[nameObjetLigneArray][0]) {
@@ -158,8 +159,19 @@ class salesDocument {
               column.table.body = _.filter(  column.table.body, function(ligneArray) {
                 return !_.map(ligneArray, 'text').includes(self._tag_search);
               });
+            } else if (line) { // when line is array
+              // case of nomenclature line
+              if (line.type === 'nomenclature') {
+                if (!line.level) {
+                  return new Error("No nomenclature level for the line " + JSON.stringify(line));
+                }
+                self._addWithds(column.table.widths, line.level);
+                self._addArrows(column.table.body, line.level);
+              }
+              self._addArrayWithData(column.table.body, line, self._regexTag);
             }
           }
+          // cas when line is a text
           if (column.text) {
             // verify if tag is present, if true replace tag with data
             if (column.text.indexOf(this._tag) != -1) {
@@ -184,11 +196,13 @@ class salesDocument {
     var dataName = "";
     var i = 0;
     while (i < array.length && dataName === "") {
-      if (array[i].text.indexOf(this._tag) != -1) {
-        array[i].text.replace(this._regexTag, function(match, tag, insideTag) {
-          var arr = insideTag.split(".");
-          dataName = arr[0];
-        });
+      if (array[i].text) {
+        if (array[i].text.indexOf(this._tag) != -1) {
+          array[i].text.replace(this._regexTag, function(match, tag, insideTag) {
+            var arr = insideTag.split(".");
+            dataName = arr[0];
+          });
+        }
       }
       i++;
     }
@@ -252,6 +266,56 @@ class salesDocument {
     });
   }
 
+  // add arrows in the first line when line has nomenclature type
+  _addArrows(body, level) {
+    if ( body[0]) {
+      // delete arrow in the model
+      body[0].shift();
+      for (let i = 0; i < level; i++) {
+        body[0].unshift({text: '->', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]});
+      }
+      for (let i = 1; i < body.length; i++) {
+
+        if (body[i][0] && body[i][0].colSpan) {
+          // -1 because with delete first column
+          body[i][0].colSpan = body[i][0].colSpan - 1 + level;
+        }
+      }
+    }
+  }
+
+  // add 10 for each level of nomenclature
+  _addWithds(tableWidths, level) {
+    //delete first index of the widths array
+    tableWidths.shift();
+    for (let i = 0; i < level; i++) {
+      tableWidths.unshift(10);
+    }
+  }
+
+  // add data in the line when line is a array
+  _addArrayWithData(tableBody, ligneArray) {
+    var self = this;
+    tableBody.forEach(function(arrayLine){
+      arrayLine.forEach(function(column){
+        if (column.text) {
+          column.text.replace(self._regexTag, function(match, tag, insideTag) {
+            var propertyLine = insideTag.split(".");
+            if (propertyLine && propertyLine[1]) {
+              if (ligneArray[propertyLine[1]]) {
+                column.text = column.text.replace(match, ligneArray[propertyLine[1]]);
+              } else {
+                // if the property doesn't not exist on the line object => we display a empy text on the pdf
+                column.text = '';
+              }
+            }
+          });
+        }
+      });
+    });
+  }
+
+  // add data in the line when line is a array of data
   _addArrayLigneWithData(tableBody, ligneArray, tag_search) {
     var self = this;
     tableBody.forEach(function(arrayLine){
