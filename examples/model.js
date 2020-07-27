@@ -177,7 +177,7 @@ var model = {
                 widths: [10, '*', 'auto'],
                 body: [
                   [
-                    {text: '->', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
+                    {text: '>>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
                     {text: '<sDoc>ligne.code</sDoc>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
                     {text: 'Ref Frs : <sDoc>ligne.code</sDoc>', alignment: 'right',	style: 'StyleLigne', border: [false, false, false, false]},
                   ],

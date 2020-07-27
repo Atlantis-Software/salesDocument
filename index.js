@@ -269,10 +269,15 @@ class salesDocument {
   // add arrows in the first line when line has nomenclature type
   _addArrows(body, level) {
     if ( body[0]) {
+      // by default is a arrow
+      var symbol = '->';
+      if (body[0][0] && body[0][0].text) {
+        symbol = body[0][0].text;
+      }
       // delete arrow in the model
       body[0].shift();
       for (let i = 0; i < level; i++) {
-        body[0].unshift({text: '->', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]});
+        body[0].unshift({text: symbol, alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]});
       }
       for (let i = 1; i < body.length; i++) {
 
