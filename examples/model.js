@@ -115,17 +115,17 @@ var model = {
       },
       table: {
         widths: ['*', 45, 15, 50, 50],
-        headerRows: 1, // Les x premières lignes sont des entêtes (dans notre cas 1 ligne d'entête)
-        keepWithHeaderRows: 1, //Pour remettre les entêtes du tableau sur les pages suivantes
-        dontBreakRows: true, // Pour qu'une ligne ne soit pas coupée entre 2 pages
+        headerRows: 1, // the first x lines are headers ( in our case 1 header line)
+        keepWithHeaderRows: 1, //To replace the table headers on the following pages
+        dontBreakRows: true, // So that a line is not cut between 2 pages
         forOrder: ["normal", "array", "nomenclature", "commentaire"],
         body: [
           [
           	{text: 'DESIGNATION', alignment: 'left',	style: 'smallbold', border: [true, true, true, true]},
-						{text: 'QTE A PREP', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+						{text: 'QTY TO PREP', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
 						{text: 'U', alignment: 'center',	style: 'smallbold', border: [true, true, true, true]},
-						{text: 'EMPLAC.', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
-						{text: 'RESTE', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+						{text: 'LOCATION', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+						{text: 'REST', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
           ],
           [
 						//Zone de designation
@@ -175,7 +175,6 @@ var model = {
             ''
           ],
           [
-						//Zone de designation
 						{
               table: {
                 widths: [10, '*', 'auto'],

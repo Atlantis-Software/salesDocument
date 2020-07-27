@@ -120,7 +120,6 @@ table: {
       {text: 'RESTE', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
     ],
     [
-      //Zone de designation
       {
         table: {
           widths: ['*', 'auto'],
