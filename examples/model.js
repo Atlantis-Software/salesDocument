@@ -121,15 +121,14 @@ var model = {
         forOrder: ["normal", "array", "nomenclature", "commentaire"],
         body: [
           [
-          	{text: 'DESIGNATION', alignment: 'left',	style: 'smallbold', border: [true, true, true, true]},
-						{text: 'QTY TO PREP', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
-						{text: 'U', alignment: 'center',	style: 'smallbold', border: [true, true, true, true]},
-						{text: 'LOCATION', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
-						{text: 'REST', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+            {text: 'DESIGNATION', alignment: 'left',	style: 'smallbold', border: [true, true, true, true]},
+            {text: 'QTY TO PREP', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+            {text: 'U', alignment: 'center',	style: 'smallbold', border: [true, true, true, true]},
+            {text: 'LOCATION', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
+            {text: 'REST', alignment: 'right',	style: 'smallbold', border: [true, true, true, true]},
           ],
           [
-						//Zone de designation
-						{
+            {
               table: {
                 widths: ['*', 'auto'],
                 body: [
@@ -146,11 +145,11 @@ var model = {
                 ]
               }
 
-						},
-						{	style: 'StyleLigne', text:'<sDoc>ligne.publicPrice</sDoc>', alignment: 'right'},
-						{	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
-						{	style: 'StyleLigne', text:'<sDoc>ligne.netUnitPrice</sDoc>'},
-						{	style: 'StyleLigne', text:'<sDoc>ligne.totalExclTaxes</sDoc>'},
+            },
+            {	style: 'StyleLigne', text:'<sDoc>ligne.publicPrice</sDoc>', alignment: 'right'},
+            {	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
+            {	style: 'StyleLigne', text:'<sDoc>ligne.netUnitPrice</sDoc>'},
+            {	style: 'StyleLigne', text:'<sDoc>ligne.totalExclTaxes</sDoc>'},
           ],
           [
             {
@@ -163,10 +162,8 @@ var model = {
                     {text: '<sDoc>line_array.designation</sDoc>'},
                     {text: '<sDoc>line_array.quantity</sDoc>',alignment: 'right'},
                     {	style: 'StyleLigne', text:'<sDoc>ligne.unity</sDoc>'},
-
                     {text: '<sDoc>line_array.T</sDoc>'},
                     {text: '<sDoc>line_array.totalExclTaxes</sDoc>', alignment: 'right'}
-
                   ]
                 ]
               },
@@ -175,7 +172,7 @@ var model = {
             ''
           ],
           [
-						{
+            {
               table: {
                 widths: [10, '*', 'auto'],
                 body: [
