@@ -1,4 +1,6 @@
 var data = {
+  footer: "un footer",
+  rose: "#ff80ff",
   document : {
     numero: 1234,
     date: '01/01/1995',
@@ -67,7 +69,7 @@ var data = {
       unity:'U',
       T:'1',
       level: 1,
-      type: "nomenclature"
+      type: "composant"
     },
     {
       code:'12342',
@@ -75,7 +77,7 @@ var data = {
       quantity:'1.000',
       unity:'U',
       T:'1',
-      type: "nomenclature",
+      type: "composant",
       level: 3
     },
     {
@@ -93,7 +95,7 @@ var data = {
       netUnitPrice:'160.99',
       totalExclTaxes:'160.99',
       T:'1',
-      type: "nomenclature",
+      type: "composant",
       level: 2
     }
   ],
@@ -112,7 +114,8 @@ var data = {
       billTotalET: "100",
       billTotalVAT: "15.5",
       billTotalNet: "115.5",
-      type: "normal"
+      type: "normal",
+      rose: "#FF00FF"
     },
     {
       index: "2",

@@ -1,4 +1,5 @@
 var model = {
+  pageMargins: [40, 80, 40, 60],
   content: [
 
     // Title
@@ -89,7 +90,7 @@ var model = {
       layout: {
         fillColor: function(i, node) {
           return (i % 2 === 0)
-            ? '#F5F5F5'
+            ? 'yellow'
             : null;
         },
         hLineWidth: function(i, node) {
@@ -105,12 +106,12 @@ var model = {
         hLineColor: function(i, node) {
           return (i === 0 || i === node.table.body.length || i === node.table.headerRows)
             ? 'black'
-            : 'gray';
+            : 'grey';
         },
         vLineColor: function(i, node) {
           return (i === 0 || i === node.table.widths.length)
             ? 'black'
-            : 'gray';
+            : 'grey';
         }
       },
       table: {
@@ -118,7 +119,7 @@ var model = {
         headerRows: 1, // the first x lines are headers ( in our case 1 header line)
         keepWithHeaderRows: 1, //To replace the table headers on the following pages
         dontBreakRows: true, // So that a line is not cut between 2 pages
-        forOrder: ["normal", "array", "nomenclature", "commentaire"],
+        forOrder: ["normal", "array", "composant", "commentaire"],
         body: [
           [
             {text: 'DESIGNATION', alignment: 'left',	style: 'smallbold', border: [true, true, true, true]},
@@ -174,7 +175,7 @@ var model = {
           [
             {
               table: {
-                widths: [10, '*', 'auto'],
+                widths: [15, '*', 'auto'],
                 body: [
                   [
                     {text: '>>', alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]},
@@ -266,7 +267,7 @@ var model = {
               text: 'Total E.T.',
               style: 'tableHeaderTotal',
               alignment: 'center',
-              fillColor: '#F5F5F5'
+              fillColor: '<sDoc>rose</sDoc>'
             }, {
               border: [
                 true, false, true, true
@@ -274,7 +275,7 @@ var model = {
               text: 'Total VAT',
               style: 'tableHeaderTotal',
               alignment: 'center',
-              fillColor: '#F5F5F5'
+              fillColor: '<sDoc>rose</sDoc>'
             }, {
               border: [
                 true, false, true, true
@@ -282,7 +283,7 @@ var model = {
               text: 'net payable',
               style: 'tableHeaderTotal',
               alignment: 'center',
-              fillColor: '#F5F5F5'
+              fillColor: '<sDoc>rose</sDoc>'
             }
           ],
           [
@@ -314,7 +315,7 @@ var model = {
               text: '<sDoc>vat.billTotalNet</sDoc>',
               rowSpan: 2,
               alignment: 'center',
-              fillColor: '#F5F5F5',
+              fillColor: '<sDoc>vat.rose</sDoc>',
               margin: [0, 8, 0, 0]
             }
           ]
@@ -412,12 +413,68 @@ var model = {
       }
     }
   ],
-  footer: function(currentPage, pageCount) {
-    return {
-      text: 'P ' + currentPage.toString() + ' / ' + pageCount.toString(),
-      alignment: 'right',
-      margin: [10, 0, 12, 0]
-    };
+  header: [
+    {
+      style: 'tableMargin10',
+      color: '#444',
+      table: {
+        widths: ['*', 100, 250],
+        body: [
+          [
+            {// ligne du haut
+              colSpan: 3,
+              text: '',
+              fillColor: "#2e99cd",
+              border: [false, false, false, false],
+              margin: [8, 0, 8, 0]
+            },
+            '',
+            ''
+          ]
+        ]
+      }
+    },
+    {
+      style: 'tableMargin10',
+      color: '#444',
+      table: {
+        widths: ['*', 1, 65],
+        body: [
+          [
+            [
+              'or a nested table',
+              {
+                table: {
+                  body: [
+                    [ {text: '<sDoc>client.phone</sDoc>'},  {text:'<sDoc>client.phone</sDoc>'},  {text:'<currentPage/>'}],
+                    ['1pagecount', {text: 'pageeee count <pageCount/>'}, '3'],
+                    ['1', '2', '3']
+                  ]
+                },
+              }
+            ],
+            {
+              border: [false, false, false, false],
+              text: ''
+            },
+            { // titre du pdf
+              border: [false, false, false, false],
+              fillColor: "#2e99cd",
+              text: '<sDoc>document.date</sDoc>' + " <currentPage/>" + ' / ' + "<pageCount/>",
+              color: '<sDoc>rose</sDoc>',
+              margin: [5, 3, 0, 3],
+              fontSize: 12,
+              bold: true
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  footer: {
+    text: '<sDoc>footer</sDoc>' + " <currentPage/>" + ' / ' + "<pageCount/>",
+    alignment: 'right',
+    margin: [10, 0, 12, 0]
   },
   styles: {
     StyleLigne: {
@@ -425,7 +482,8 @@ var model = {
     },
     titre: {
       fontSize: 20,
-      bold: true
+      bold: true,
+      color: '<sDoc>rose</sDoc>'
     },
     normal: {
       fontSize: 10

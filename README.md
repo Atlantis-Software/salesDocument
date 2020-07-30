@@ -65,9 +65,74 @@ var dd = {
     {
       text: '<sDoc>document.date</sDoc>'
     }
-  ]
+  ],
+  header: [
+    {
+      style: 'tableMargin10',
+      color: '#444',
+      table: {
+        widths: ['*', 100, 250],
+        body: [
+          [
+            {// ligne du haut
+              colSpan: 3,
+              text: '',
+              fillColor: "#2e99cd",
+              border: [false, false, false, false],
+              margin: [8, 0, 8, 0]
+            },
+            '',
+            ''
+          ]
+        ]
+      }
+    },
+    {
+      style: 'tableMargin10',
+      color: '#444',
+      table: {
+        widths: ['*', 1, 65],
+        body: [
+          [
+            [
+              'or a nested table',
+							{
+                table: {
+                  body: [
+                    [ {text: '<sDoc>client.phone</sDoc>'},  {text:'<sDoc>client.phone</sDoc>'},  {text:'<currentPage/>'}],
+                    ['1pagecount', {text: 'pageeee count <pageCount/>'}, '3'],
+                    ['1', '2', '3']
+                  ]
+                },
+							}
+						],
+            {
+              border: [false, false, false, false],
+              text: ''
+            },
+            { // titre du pdf
+              border: [false, false, false, false],
+              fillColor: "#2e99cd",
+              text: '<sDoc>document.date</sDoc>' + " <currentPage/>" + ' / ' + "<pageCount/>",
+              color: '<sDoc>rose</sDoc>',
+              margin: [5, 3, 0, 3],
+              fontSize: 12,
+              bold: true
+            }
+          ]
+        ]
+      }
+    }
+  ],
+  footer: {
+    text: '<sDoc>footer</sDoc>' + " <currentPage/>" + ' / ' + "<pageCount/>",
+    alignment: 'right',
+    margin: [10, 0, 12, 0]
+  }
 }
+
 ```
+In the header or the footer we can use the tag `<currentPage/>` to display current page and the tag  `<pageCount/>` to display the total number of pages.
 
 In our model we can create a `for` in our table for that we just need to add `forOrder` attribute.
 
@@ -101,7 +166,7 @@ If we want a column to take all rows we just need to put in line `rowSpan: x`, x
 
 It will take automatically all the line.
 
-For a nomenclature line , we must define a level. For each level with have a arrow in the first line.
+For a component line , we must define a level. For each level with have a arrow in the first line.
 
 Example :
 ```javascript
@@ -110,7 +175,7 @@ table: {
   headerRows: 1, // the first x lines are headers ( in our case 1 header line)
   keepWithHeaderRows: 1, //To replace the table headers on the following pages
   dontBreakRows: true, // So that a line is not cut between 2 pages
-  forOrder: ["normal", "array", "nomenclature", "commentaire"],
+  forOrder: ["normal", "array", "composant", "commentaire"],
   body: [
     [
       {text: 'DESIGNATION', alignment: 'left',	style: 'smallbold', border: [true, true, true, true]},
@@ -258,7 +323,7 @@ var data = {
       unity:'U',
       T:'1',
       level: 1,
-      type: "nomenclature"
+      type: "composant"
     },
     {
       code:'12342',
@@ -266,7 +331,7 @@ var data = {
       quantity:'1.000',
       unity:'U',
       T:'1',
-      type: "nomenclature",
+      type: "composant",
       level: 3
     },
     {
@@ -284,7 +349,7 @@ var data = {
       netUnitPrice:'160.99',
       totalExclTaxes:'160.99',
       T:'1',
-      type: "nomenclature",
+      type: "composant",
       level: 2
     }
   ],
