@@ -2,7 +2,9 @@ var _ = require("lodash");
 var asynk = require("asynk");
 
 class salesDocument {
-  constructor() {
+  constructor(model, data) {
+    this.setModel(model);
+    this.setData(data);
     // Define default tag for replace data
     this._tag = "sDoc";
     this._tagCurrentPage = "<currentPage/>";
