@@ -39,7 +39,7 @@ Next we need to create the object :
 var myObject = new salesDocument(model, data)
 ```
 
-We set a model and data after initialisation with setters :
+We can change model or data after initialisation with setters :
 ```javascript
 myObject.setModel(model);
 myObject.setData(data);
