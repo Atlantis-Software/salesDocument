@@ -36,7 +36,7 @@ import salesDocument from 'salesDocument'
 
 Next we need to create the object :
 ```javascript
-var myObject = new salesDocument()
+var myObject = new salesDocument(model, data)
 ```
 
 We set a model and data after initialisation with setters :
