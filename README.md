@@ -38,6 +38,10 @@ Next we need to create the object :
 ```javascript
 var myObject = new salesDocument(model, data)
 ```
+To remove header in the first page , we can use removeHeaderFirstPage function :
+```javascript
+myObject.removeHeaderFirstPage();
+```
 
 We can change model or data after initialisation with setters :
 ```javascript

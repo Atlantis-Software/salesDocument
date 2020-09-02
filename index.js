@@ -61,6 +61,10 @@ class salesDocument {
     this._regexTag = new RegExp(`<(${this._tag})>([\\s\\S]*?)</\\1>`, 'g');
   }
 
+  removeHeaderFirstPage() {
+    this.remove_header_first_page = true;
+  }
+
   // Call the first time with the first document with its data
   // modify all document ( header and footer ) with the data
   // pagination by document
@@ -120,11 +124,15 @@ class salesDocument {
         cb();
       } else if (key === 'footer'){
         var footer =  _.cloneDeep(object[key]);
-        object[key] = function(currentPage, pageCount){ return self._executeHeader(footer, currentPage, pageCount.toString());};
+        object[key] = function(currentPage, pageCount){ return self._executeFooter(footer, currentPage, pageCount.toString());};
         cb();
       } else if (key === 'header'){
         var header =  _.cloneDeep(object[key]);
-        object[key] = function(currentPage, pageCount){ return self._executeFooter(header, currentPage, pageCount.toString());};
+        object[key] = function(currentPage, pageCount){
+          if ((self.remove_header_first_page && currentPage != 1) || (!self.remove_header_first_page) ) {
+            return self._executeHeader(header, currentPage, pageCount.toString());
+          }
+        };
         cb();
       } else {
         cb();
