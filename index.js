@@ -39,9 +39,6 @@ class salesDocument {
 
   setData(data) {
     this._data = data;
-    if (_.has(data, 'remove_header_first_page') && data.remove_header_first_page === true) {
-      this.remove_header_first_page = true;
-    }
   }
 
   // add new document folowing the pdf
