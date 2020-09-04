@@ -102,14 +102,18 @@ class salesDocument {
 
       if (typeof object[key] === "object" && key !== "footer" && key !== "header") {
         if (Array.isArray(object[key])) {
+          self.req.debug("je passe ici 1");
           this._recursiveFindArray(object[key], cb);
         } else if (key === "table") {
+          self.req.debug("je passe ici 2");
           if (object[key].forOrder) {
             this._formatTable(object[key], cb);
           } else {
+            self.req.debug("je passe ici 3");
             this._recursiveFindObject(object[key], cb);
           }
         } else {
+          self.req.debug("je passe ici 4");
           this._recursiveFindObject(object[key], cb);
         }
       } else if (key === "text") {
@@ -275,6 +279,24 @@ class salesDocument {
     });
   }
 
+  _recursiveTagHeadersColumnsSynchrone(object) {
+    var self = this;
+    for (var i = 0; i < object.body.length; i++) {
+      object.body[i].forEach(function(colonne) {
+        if (colonne.table) {
+          self._recursiveTagHeadersColumnsSynchrone(colonne.table);
+        } else {
+          if (colonne.text) {
+            colonne.text = self._replaceTag(colonne.text);
+          }
+          if (colonne.fillColor) {
+            colonne.fillColor = self._replaceTag(colonne.fillColor);
+          }
+        }
+      });
+    }
+  }
+
   // If a table have forOrder attribute, this function will take all type of line
   // and create a object with all type of line
   // Next it will take the data name we need to replace tag
@@ -291,21 +313,28 @@ class salesDocument {
         lineType[type] = _.cloneDeep(object.body[i]);
       }
     });
-    var dataName;
-    // Take the data name we need, if headerRows define we take the first model line
-    if (object.headerRows) {
-      dataName = this._recoverDataName(object.body[object.headerRows]);
-    } else {
-      dataName = this._recoverDataName(object.body[0]);
+
+    if (!object.dataName) {
+      // Take the data name we need, if headerRows define we take the first model line
+      if (object.headerRows) {
+        object.dataName = this._recoverDataName(object.body[object.headerRows]);
+      } else {
+        object.dataName = this._recoverDataName(object.body[0]);
+      }
     }
+
     // translate columns headers
     for (var i = 0; i < object.headerRows; i++) {
       object.body[i].forEach(function(colonne){
-        if (colonne.text) {
-          colonne.text = self._replaceTag(colonne.text);
-        }
-        if (colonne.fillColor) {
-          colonne.fillColor = self._replaceTag(colonne.fillColor);
+        if (colonne.table) {
+          self._recursiveTagHeadersColumnsSynchrone(colonne.table);
+        } else {
+          if (colonne.text) {
+            colonne.text = self._replaceTag(colonne.text);
+          }
+          if (colonne.fillColor) {
+            colonne.fillColor = self._replaceTag(colonne.fillColor);
+          }
         }
       });
     }
@@ -315,10 +344,19 @@ class salesDocument {
     } else {
       object.body = [];
     }
-    if (this._data[dataName]) {
+    if (!object.dataName) {
+      // Take the data name we need, if headerRows define we take the first model line
+      if (object.headerRows) {
+        object.dataName = this._recoverDataName(object.body[object.headerRows]);
+      } else {
+        object.dataName = this._recoverDataName(object.body[0]);
+      }
+    }
+
+    if (object.dataName) {
       var count = 0;
       // For each line in data we create a new line with correct model and replace all tag with data
-      asynk.each(this._data[dataName], (line, cb) => {
+      asynk.each(this._data[object.dataName], (line, cb) => {
         if (!line.type) {
           return cb();
         }
@@ -353,7 +391,7 @@ class salesDocument {
                 if (!line.level) {
                   return new Error("No nomenclature level for the line " + JSON.stringify(line));
                 }
-                self._addWithds(column.table.widths, line.level);
+                //self._addWithds(column.table.widths, line.level);
                 self._addArrows(column.table.body, line.level);
               }
               self._addArrayWithData(column.table.body, line, self._regexTag);
@@ -380,6 +418,27 @@ class salesDocument {
           cb();
         }).serie().done(()=> {
           object.body.push(newLine);
+          if (line.type_ligne === "lot") {
+            var dataNameLot = lineType["lot"][0].table.dataName;
+
+            line[dataNameLot].forEach(function(ligne) {
+              var newLineLot = lineType["lot"];
+              newLineLot.forEach(function(column) {
+                if (_.has(column, 'table.body') && column.table.body[0]) {
+                  self._addArrayWithData(column.table.body, count);
+                }
+                // cas when line is a text
+                if (column.text) {
+                  // verify if tag is present, if true replace tag with data
+                  if (column.text.indexOf(this._tag) != -1) {
+                    column.text = self._replaceTagLine(column.text, count);
+                  }
+                }
+              });
+
+              object.body.push(newLineLot);
+            });
+          }
           count++;
           cb();
         });
@@ -492,10 +551,21 @@ class salesDocument {
       // we only need the second group, that's why we use insideTag
       var arr = insideTag.split(".");
       // First we take the value with correct data name and with index we want
-      var value = self._data[dataName][index][arr[1]];
+      var value = "";
+      if (self._data[arr[0]][index])
+        value = self._data[arr[0]][index][arr[1]];
+      else
+        value = self._data[arr[0]][arr[1]];
+
+      if (value === null)
+        return "";
+
       // for every sub object we look if the data is available, else we put blank value
       if (arr.length >= 2) {
         for (var i = 2; i<arr.length; i++) {
+          // We go down into the object
+          if (value[0] && value[0] instanceof Object)
+            value = value[0];
           if (value[arr[i]]) {
             value = value[arr[i]];
           } else {
@@ -518,23 +588,25 @@ class salesDocument {
   // add arrows in the first line when line has nomenclature type
   _addArrows(body, level) {
     if ( body[0]) {
+      // Necessary to go down until we reach the text zone
+      if (body[0][0] && body[0][0].table) {
+        while (body[0][0] && body[0][0].table) {
+          body = body[0][0].table.body;
+        }
+      }
       // by default is a arrow
       var symbol = '->';
       if (body[0][0] && body[0][0].text) {
         symbol = body[0][0].text;
       }
+
       // delete arrow in the model
       body[0].shift();
-      for (let i = 0; i < level; i++) {
-        body[0].unshift({text: symbol, alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]});
+      var cursymbol = symbol;
+      for (let i = 1; i < level; i++) {
+        cursymbol += " " + symbol;
       }
-      for (let i = 1; i < body.length; i++) {
-
-        if (body[i][0] && body[i][0].colSpan) {
-          // -1 because with delete first column
-          body[i][0].colSpan = body[i][0].colSpan - 1 + level;
-        }
-      }
+      body[0].unshift({text: cursymbol, noWrap: true, alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]});
     }
   }
 
@@ -552,22 +624,16 @@ class salesDocument {
   }
 
   // add data in the line when line is a array
-  _addArrayWithData(tableBody, ligneArray) {
+  _addArrayWithData(tableBody, count) {
     var self = this;
     tableBody.forEach(function(arrayLine){
       arrayLine.forEach(function(column){
         if (column.text) {
-          column.text.replace(self._regexTag, function(match, tag, insideTag) {
-            var propertyLine = insideTag.split(".");
-            if (propertyLine && propertyLine[1]) {
-              if (ligneArray[propertyLine[1]]) {
-                column.text = column.text.replace(match, ligneArray[propertyLine[1]]);
-              } else {
-                // if the property doesn't not exist on the line object => we display a empy text on the pdf
-                column.text = '';
-              }
-            }
-          });
+          column.text = self._replaceTagLine(column.text, count);
+        } else {
+          if (column.table) {
+            self._addArrayWithData(column.table.body, count);
+          }
         }
       });
     });
@@ -602,6 +668,132 @@ class salesDocument {
       }
     });
 
+  }
+  // Replace tag in object passed in parameter
+  _replaceTagObject(text, dataobject) {
+    // Replace the tag by the data
+    return text.replace(this._regexTag, function(match, tag, insideTag) {
+      // we only need the second group, that's why we use insideTag
+      var arr = insideTag.split(".");
+
+      // First we take the value with correct data name and with index we want
+      var value = "";
+      value = dataobject[arr[0]];
+
+      // for every sub object we look if the data is available, else we put blank value
+      if (arr.length > 1) {
+        for (var i = 1; i < arr.length; i++) {
+          // On descend dans l'objet
+          if (value[arr[i]]) {
+            value = value[arr[i]];
+          } else {
+            value = "";
+          }
+        }
+      }
+
+      // if the value is an object we put blank value
+      if (typeof value === "object") {
+        value = "";
+      }
+      // the value is undefined we put blank value
+      if (value === void 0) {
+        value = "";
+      }
+      return value;
+    });
+  }
+
+  // Case
+  // and create a object with all type of line
+  // Next it will take the data name we need to replace tag
+  // For each line in data we create a new line in table and replace all tag with the correct data
+  _formatTotals(object, cb) {
+    var self = this;
+    var modelLine = {};
+    var i = 0;
+
+    // If an header rows is define we take line after that header rows
+    if (object.headerRows) {
+      modelLine = _.cloneDeep(object.body[i+object.headerRows]);
+    } else {
+      modelLine = _.cloneDeep(object.body[i]);
+    }
+
+    // translate columns headers
+    for (var i = 0; i < object.headerRows; i++) {
+      object.body[i].forEach(function(colonne) {
+        if (colonne.table) {
+          self._recursiveTagHeadersColumnsSynchrone(colonne.table);
+        } else {
+          if (colonne.text) {
+            colonne.text = self._replaceTag(colonne.text);
+          }
+          if (colonne.fillColor) {
+            colonne.fillColor = self._replaceTag(colonne.fillColor);
+          }
+        }
+      });
+    }
+
+    // Remove all model line from dd
+    if (object.headerRows) {
+      object.body = object.body.slice(0, object.headerRows);
+    } else {
+      object.body = [];
+    }
+
+    if (object.dataName) {
+      var nbelement = 0;
+      var data = self._data;
+
+      var tabdata = object.dataName.split(".");
+
+      // for every sub object we need to go down inside the object
+      for (var i = 0; i < tabdata.length; i++) {
+        if (data[tabdata[i]]) {
+          data = data[tabdata[i]];
+        } else {
+          data = "";
+        }
+      }
+
+      // Count the number of the element
+      for (var element in data) {
+        if (data.hasOwnProperty(element))
+          nbelement++;
+      }
+
+      for (var key in data) {
+        if (!data.hasOwnProperty(key)) {
+          return cb();
+        }
+
+        var newLine = _.cloneDeep(modelLine);
+
+        newLine.forEach(function(column) {
+          if (column.text) {
+            if (column.margin) {
+              column.text = self._replaceTagObject(column.text, self._data);
+              var margintop = 8;
+              margintop = margintop * (nbelement - 1);
+              column.margin = [0,margintop,0,0];
+            } else {
+              column.text = self._replaceTagObject(column.text, data[key]);
+            }
+
+            if (column.rowSpan) {
+              column.rowSpan = nbelement;
+            }
+          }
+        });
+
+        //fs.appendFileSync("/tmp/test", "ligne : " + JSON.stringify(newLine));
+        object.body.push(newLine);
+      }
+
+      cb();
+    }
   }
 }
 
