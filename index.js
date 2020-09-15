@@ -48,9 +48,9 @@ class salesDocument {
     this.content = _.cloneDeep(this._model.content);
     this._recursiveFindObject(this.content, () => {
       if (this.dd.content.length > 0) {
-        this.content.unshift({text: ' ', style: 'normal', pageBreak: 'before' });
+        this.content.unshift({ text: ' ', style: 'normal', pageBreak: 'before' });
       }
-      this.content.push({text: "new_document", fontSize:0 });
+      this.content.push({ text: "new_document", fontSize: 0 });
       this.dd.content = this.dd.content.concat(this.content);
       cb(this.dd);
     });
@@ -75,7 +75,7 @@ class salesDocument {
     }
 
     this._recursiveFindObject(this.dd, () => {
-      this.addDocument(this._data,() => {
+      this.addDocument(this._data, () => {
         cb(this.dd);
       });
     });
@@ -93,7 +93,7 @@ class salesDocument {
     var self = this;
 
     asynk.each(_.keys(object), (key, cb) => {
-      if (typeof object[key] === 'string' || object[key] instanceof String ) {
+      if (typeof object[key] === 'string' || object[key] instanceof String) {
         // verify if the tag is present, if true replace tag with data
         if (object[key].indexOf(this._tag) != -1) {
           object[key] = this._replaceTag(object[key]);
@@ -102,18 +102,16 @@ class salesDocument {
 
       if (typeof object[key] === "object" && key !== "footer" && key !== "header") {
         if (Array.isArray(object[key])) {
-          self.req.debug("je passe ici 1");
           this._recursiveFindArray(object[key], cb);
         } else if (key === "table") {
-          self.req.debug("je passe ici 2");
           if (object[key].forOrder) {
             this._formatTable(object[key], cb);
+          } else if (object[key].totals) {
+            this._formatTotals(object[key], cb);
           } else {
-            self.req.debug("je passe ici 3");
             this._recursiveFindObject(object[key], cb);
           }
         } else {
-          self.req.debug("je passe ici 4");
           this._recursiveFindObject(object[key], cb);
         }
       } else if (key === "text") {
@@ -122,13 +120,13 @@ class salesDocument {
           object[key] = this._replaceTag(object[key]);
         }
         cb();
-      } else if (key === 'footer'){
-        var footer =  _.cloneDeep(object[key]);
-        object[key] = function(currentPage, pageCount){ return self._executeHeader(footer, currentPage, pageCount.toString());};
+      } else if (key === 'footer') {
+        var footer = _.cloneDeep(object[key]);
+        object[key] = function(currentPage, pageCount) { return self._executeHeader(footer, currentPage, pageCount.toString()); };
         cb();
-      } else if (key === 'header'){
-        var header =  _.cloneDeep(object[key]);
-        object[key] = function(currentPage, pageCount){ return self._executeFooter(header, currentPage, pageCount.toString());};
+      } else if (key === 'header') {
+        var header = _.cloneDeep(object[key]);
+        object[key] = function(currentPage, pageCount) { return self._executeFooter(header, currentPage, pageCount.toString()); };
         cb();
       } else {
         cb();
@@ -139,7 +137,7 @@ class salesDocument {
   }
   _executeHeader(model, currentpage) {
     var self = this;
-    var model_header_or_footer =  _.cloneDeep(model);
+    var model_header_or_footer = _.cloneDeep(model);
     // Recovery of all breaks
     var pages_rupture = _.filter(self.dd.content, function(p) { return p.text === "new_document"; });
     // sort breaks by page number
@@ -149,7 +147,7 @@ class salesDocument {
       }
     }]);
     // current page is a breaking page ?
-    var current_page_rupture = _.find( ruptures_sort_by_num_page , function(p) {
+    var current_page_rupture = _.find(ruptures_sort_by_num_page, function(p) {
       if (p.positions && p.positions[0] && p.positions[0].pageNumber) {
         return currentpage === p.positions[0].pageNumber + 1;
       }
@@ -162,7 +160,7 @@ class salesDocument {
         self.num_page_rupture_header = ruptures_sort_by_num_page[self.next_index_header].positions[0].pageNumber;
       }
       // case current page is the last page but page count not equal to 1
-      if (currentpage === self.dd.content[self.dd.content.length -1].positions[0].pageNumber && self.page_count_footer !== 1) {
+      if (currentpage === self.dd.content[self.dd.content.length - 1].positions[0].pageNumber && self.page_count_footer !== 1) {
         self.current_page_header++;
       } else {
         self.current_page_header = 1;
@@ -176,7 +174,7 @@ class salesDocument {
 
   _executeFooter(model, currentpage) {
     var self = this;
-    var model_header_or_footer =  _.cloneDeep(model);
+    var model_header_or_footer = _.cloneDeep(model);
 
     // Recovery of all breaks
     var pages_rupture = _.filter(self.dd.content, function(p) { return p.text === "new_document"; });
@@ -187,7 +185,7 @@ class salesDocument {
       }
     }]);
     // current page is a breaking page ?
-    var current_page_rupture = _.find( ruptures_sort_by_num_page , function(p) {
+    var current_page_rupture = _.find(ruptures_sort_by_num_page, function(p) {
       if (p.positions && p.positions[0] && p.positions[0].pageNumber) {
         return currentpage === p.positions[0].pageNumber + 1;
       }
@@ -200,7 +198,7 @@ class salesDocument {
         self.num_page_rupture_footer = ruptures_sort_by_num_page[self.next_index_footer].positions[0].pageNumber;
       }
       // case current page is the last page but page count not equal to 1
-      if (currentpage === self.dd.content[self.dd.content.length -1].positions[0].pageNumber && self.page_count_footer !== 1) {
+      if (currentpage === self.dd.content[self.dd.content.length - 1].positions[0].pageNumber && self.page_count_footer !== 1) {
         self.current_page_footer++;
       } else {
         self.current_page_footer = 1;
@@ -213,16 +211,16 @@ class salesDocument {
   }
   _recursiveFindObjectSynchrone(object, currentpage, pagecount) {
     _.each(object, (value, key) => {
-      if (typeof object[key] === 'string' || object[key] instanceof String ) {
+      if (typeof object[key] === 'string' || object[key] instanceof String) {
         // verify if the tag is present, if true replace tag with data
         if (object[key].indexOf(this._tag) != -1) {
           object[key] = this._replaceTag(object[key]);
         }
         if (object[key].indexOf(this._tagCurrentPage) != -1) {
-          object[key] = this._replaceTagByValue(object[key], this._tagCurrentPage ,currentpage);
+          object[key] = this._replaceTagByValue(object[key], this._tagCurrentPage, currentpage);
         }
         if (object[key].indexOf(this._tagPageCount) != -1) {
-          object[key] = this._replaceTagByValue(object[key], this._tagPageCount ,pagecount);
+          object[key] = this._replaceTagByValue(object[key], this._tagPageCount, pagecount);
         }
       }
 
@@ -241,10 +239,10 @@ class salesDocument {
           object[key] = this._replaceTag(object[key]);
         }
         if (object[key].indexOf(this._tagCurrentPage) != -1) {
-          object[key] = this._replaceTagByValue(object[key], this._tagCurrentPage ,currentpage);
+          object[key] = this._replaceTagByValue(object[key], this._tagCurrentPage, currentpage);
         }
         if (object[key].indexOf(this._tagPageCount) != -1) {
-          object[key] = this._replaceTagByValue(object[key], this._tagPageCount ,pagecount);
+          object[key] = this._replaceTagByValue(object[key], this._tagPageCount, pagecount);
         }
       }
     });
@@ -270,7 +268,7 @@ class salesDocument {
 
   _recursiveFindArraySynchrone(array, currentPage, pageCount) {
     var self = this;
-    array.forEach(function(item){
+    array.forEach(function(item) {
       if (Array.isArray(item)) {
         self._recursiveFindArraySynchrone(item, currentPage, pageCount);
       } else if (item instanceof Object) {
@@ -279,6 +277,7 @@ class salesDocument {
     });
   }
 
+  //
   _recursiveTagHeadersColumnsSynchrone(object) {
     var self = this;
     for (var i = 0; i < object.body.length; i++) {
@@ -308,24 +307,15 @@ class salesDocument {
     object.forOrder.forEach((type, i) => {
       // If an header rows is define we take line after that header rows
       if (object.headerRows) {
-        lineType[type] = _.cloneDeep(object.body[i+object.headerRows]);
+        lineType[type] = _.cloneDeep(object.body[i + object.headerRows]);
       } else {
         lineType[type] = _.cloneDeep(object.body[i]);
       }
     });
 
-    if (!object.dataName) {
-      // Take the data name we need, if headerRows define we take the first model line
-      if (object.headerRows) {
-        object.dataName = this._recoverDataName(object.body[object.headerRows]);
-      } else {
-        object.dataName = this._recoverDataName(object.body[0]);
-      }
-    }
-
     // translate columns headers
     for (var i = 0; i < object.headerRows; i++) {
-      object.body[i].forEach(function(colonne){
+      object.body[i].forEach(function(colonne) {
         if (colonne.table) {
           self._recursiveTagHeadersColumnsSynchrone(colonne.table);
         } else {
@@ -338,19 +328,12 @@ class salesDocument {
         }
       });
     }
+
     // Remove all model line from dd
     if (object.headerRows) {
       object.body = object.body.slice(0, object.headerRows);
     } else {
       object.body = [];
-    }
-    if (!object.dataName) {
-      // Take the data name we need, if headerRows define we take the first model line
-      if (object.headerRows) {
-        object.dataName = this._recoverDataName(object.body[object.headerRows]);
-      } else {
-        object.dataName = this._recoverDataName(object.body[0]);
-      }
     }
 
     if (object.dataName) {
@@ -366,6 +349,7 @@ class salesDocument {
         }
 
         var newLine = _.cloneDeep(lineType[line.type]);
+
         asynk.each(newLine, (column, cb) => {
           if (_.has(column, 'table.body') && column.table.body[0]) {
             var nameObjetLigneArray = this._recoverDataName(column.table.body[0]);
@@ -373,16 +357,16 @@ class salesDocument {
             if (line[nameObjetLigneArray]) {
               if (line[nameObjetLigneArray] && line[nameObjetLigneArray][0]) {
                 for (var prop in line[nameObjetLigneArray][0]) {
-                  self._tag_search = '<'+self._tag +'>'+nameObjetLigneArray+"."+prop+'</'+self._tag+'>';
+                  self._tag_search = '<' + self._tag + '>' + nameObjetLigneArray + "." + prop + '</' + self._tag + '>';
                   break;
                 }
               }
               // add each array line in the template with the data
-              line[nameObjetLigneArray].forEach(function(ligneArray){
+              line[nameObjetLigneArray].forEach(function(ligneArray) {
                 self._addArrayLigneWithData(column.table.body, ligneArray, self._tag_search);
               });
               // delete the first ligne in the array
-              column.table.body = _.filter(  column.table.body, function(ligneArray) {
+              column.table.body = _.filter(column.table.body, function(ligneArray) {
                 return !_.map(ligneArray, 'text').includes(self._tag_search);
               });
             } else if (line) { // when line is array
@@ -394,14 +378,14 @@ class salesDocument {
                 //self._addWithds(column.table.widths, line.level);
                 self._addArrows(column.table.body, line.level);
               }
-              self._addArrayWithData(column.table.body, line, self._regexTag);
+              self._addArrayWithData(column.table.body, count);
             }
           }
           // cas when line is a text
           if (column.text) {
             // verify if tag is present, if true replace tag with data
             if (column.text.indexOf(this._tag) != -1) {
-              column.text = this._replaceTagLine(column.text, dataName, count);
+              column.text = this._replaceTagLine(column.text, count);
             }
             if (column.rowSpan) {
               column.rowSpan = this._data[dataName].length;
@@ -409,15 +393,16 @@ class salesDocument {
           }
 
           if (column.fillColor) {
-            if (typeof column.fillColor === 'string' || column.fillColor instanceof String ) {
+            if (typeof column.fillColor === 'string' || column.fillColor instanceof String) {
               if (column.fillColor.indexOf(this._tag) != -1) {
-                column.fillColor = this._replaceTagLine(column.fillColor, dataName, count);
+                column.fillColor = this._replaceTagLine(column.fillColor, count);
               }
             }
           }
           cb();
-        }).serie().done(()=> {
+        }).serie().done(() => {
           object.body.push(newLine);
+
           if (line.type_ligne === "lot") {
             var dataNameLot = lineType["lot"][0].table.dataName;
 
@@ -439,6 +424,7 @@ class salesDocument {
               object.body.push(newLineLot);
             });
           }
+
           count++;
           cb();
         });
@@ -449,10 +435,10 @@ class salesDocument {
     if (column.text) {
       column.text = this._replaceTag(column.text);
       if (column.text.indexOf(this._tagCurrentPage) != -1) {
-        column.text = this._replaceTagByValue(column.text, this._tagCurrentPage ,currentpage);
+        column.text = this._replaceTagByValue(column.text, this._tagCurrentPage, currentpage);
       }
       if (column.text.indexOf(this._tagPageCount) != -1) {
-        column.text = this._replaceTagByValue(column.text, this._tagPageCount ,pagecount);
+        column.text = this._replaceTagByValue(column.text, this._tagPageCount, pagecount);
       }
     }
 
@@ -470,9 +456,9 @@ class salesDocument {
     // on parcours chaque ligne du tableau
     for (var i = 0; i < object.body.length; i++) {
       // on parcours chaque colonne de la ligne
-      object.body[i].forEach(function(column){
+      object.body[i].forEach(function(column) {
         if (Array.isArray(column.stack)) {
-          column.stack.forEach(function(col){
+          column.stack.forEach(function(col) {
             self._process_column(col, currentpage, pagecount);
             if (col.table) {
               self._formatTableSynchrone(col.table, currentpage, pagecount);
@@ -481,7 +467,7 @@ class salesDocument {
         }
         self._process_column(column, currentpage, pagecount);
         if (Array.isArray(column)) {
-          column.forEach(function(col){
+          column.forEach(function(col) {
             self._process_column(col, currentpage, pagecount);
             if (col.table) {
               self._formatTableSynchrone(col.table, currentpage, pagecount);
@@ -521,7 +507,7 @@ class salesDocument {
       var arr = insideTag.split(".");
       var value = self._data[arr[0]];
       // for every sub object we look if the data is available, else we put blank value
-      for (var i = 1; i<arr.length; i++) {
+      for (var i = 1; i < arr.length; i++) {
         if (value[arr[i]]) {
           value = value[arr[i]];
         } else {
@@ -540,16 +526,18 @@ class salesDocument {
     });
   }
 
-  _replaceTagByValue(text, tag ,value) {
+  _replaceTagByValue(text, tag, value) {
     return text.replace(tag, value);
   }
 
-  _replaceTagLine(text, dataName, index) {
+  _replaceTagLine(text, index) {
     var self = this;
+
     // Replace the tag by the data
     return text.replace(this._regexTag, function(match, tag, insideTag) {
       // we only need the second group, that's why we use insideTag
       var arr = insideTag.split(".");
+
       // First we take the value with correct data name and with index we want
       var value = "";
       if (self._data[arr[0]][index])
@@ -561,9 +549,9 @@ class salesDocument {
         return "";
 
       // for every sub object we look if the data is available, else we put blank value
-      if (arr.length >= 2) {
-        for (var i = 2; i<arr.length; i++) {
-          // We go down into the object
+      if (arr.length > 2) {
+        for (var i = 2; i < arr.length; i++) {
+          // On descend dans l'objet
           if (value[0] && value[0] instanceof Object)
             value = value[0];
           if (value[arr[i]]) {
@@ -587,13 +575,14 @@ class salesDocument {
 
   // add arrows in the first line when line has nomenclature type
   _addArrows(body, level) {
-    if ( body[0]) {
+    if (body[0]) {
       // Necessary to go down until we reach the text zone
       if (body[0][0] && body[0][0].table) {
         while (body[0][0] && body[0][0].table) {
           body = body[0][0].table.body;
         }
       }
+
       // by default is a arrow
       var symbol = '->';
       if (body[0][0] && body[0][0].text) {
@@ -606,7 +595,8 @@ class salesDocument {
       for (let i = 1; i < level; i++) {
         cursymbol += " " + symbol;
       }
-      body[0].unshift({text: cursymbol, noWrap: true, alignment: 'left',	style: 'StyleLigne', border: [false, false, false, false]});
+
+      body[0].unshift({ text: cursymbol, noWrap: true, alignment: 'left', style: 'StyleLigne', border: [false, false, false, false] });
     }
   }
 
@@ -626,8 +616,9 @@ class salesDocument {
   // add data in the line when line is a array
   _addArrayWithData(tableBody, count) {
     var self = this;
-    tableBody.forEach(function(arrayLine){
-      arrayLine.forEach(function(column){
+
+    tableBody.forEach(function(arrayLine) {
+      arrayLine.forEach(function(column) {
         if (column.text) {
           column.text = self._replaceTagLine(column.text, count);
         } else {
@@ -642,12 +633,12 @@ class salesDocument {
   // add data in the line when line is a array of data
   _addArrayLigneWithData(tableBody, ligneArray, tag_search) {
     var self = this;
-    tableBody.forEach(function(arrayLine){
+    tableBody.forEach(function(arrayLine) {
       // we clone the template line each time
       var ligneToClone = _.find(arrayLine, function(l) { return l.text && _.includes(l.text, tag_search); });
       if (ligneToClone) {
         var arrayLineToClone = _.cloneDeep(arrayLine);
-        arrayLineToClone.forEach(function(column){
+        arrayLineToClone.forEach(function(column) {
           if (column.text) {
             column.text.replace(self._regexTag, function(match, tag, insideTag) {
               var propertyLine = insideTag.split(".");
@@ -667,8 +658,8 @@ class salesDocument {
         tableBody.push(arrayLineToClone);
       }
     });
-
   }
+
   // Replace tag in object passed in parameter
   _replaceTagObject(text, dataobject) {
     // Replace the tag by the data
@@ -715,7 +706,7 @@ class salesDocument {
 
     // If an header rows is define we take line after that header rows
     if (object.headerRows) {
-      modelLine = _.cloneDeep(object.body[i+object.headerRows]);
+      modelLine = _.cloneDeep(object.body[i + object.headerRows]);
     } else {
       modelLine = _.cloneDeep(object.body[i]);
     }
@@ -777,7 +768,7 @@ class salesDocument {
               column.text = self._replaceTagObject(column.text, self._data);
               var margintop = 8;
               margintop = margintop * (nbelement - 1);
-              column.margin = [0,margintop,0,0];
+              column.margin = [0, margintop, 0, 0];
             } else {
               column.text = self._replaceTagObject(column.text, data[key]);
             }
