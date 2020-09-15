@@ -39,6 +39,11 @@ Next we need to create the object :
 var myObject = new salesDocument(model, data)
 ```
 
+To remove header in the first page , we can use removeHeaderFirstPage function :
+```javascript
+myObject.removeHeaderFirstPage();
+```
+
 We can change model or data after initialisation with setters :
 ```javascript
 myObject.setModel(model);
@@ -148,6 +153,7 @@ In the header or the footer we can use the tag `<currentPage/>` to display curre
 In our model we can create a `for` in our table for that we just need to add `forOrder` attribute.
 
 That attribute is an array of string with in order the different type of line, like `normal`, `comment` ...
+WARNING : we can't use type line lot , it's a reserved type
 
 Example :
 ```javascript

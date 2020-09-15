@@ -16,7 +16,7 @@ class salesDocument {
     // Select the tag in first group and is content in second group.
     this._regexTag = new RegExp(`<(${this._tag})>([\\s\\S]*?)</\\1>`, 'g');
     this.num_page_rupture_header = 0;
-    this.current_page_header = 0;
+    this.current_page_header = 1;
     this.page_count_header = 1;
     this.next_index_header = 0;
 
@@ -122,11 +122,46 @@ class salesDocument {
         cb();
       } else if (key === 'footer') {
         var footer = _.cloneDeep(object[key]);
-        object[key] = function(currentPage, pageCount) { return self._executeHeader(footer, currentPage, pageCount.toString()); };
+        object[key] = function(currentPage, pageCount){ return self._executeFooter(footer, currentPage, pageCount.toString());};
         cb();
       } else if (key === 'header') {
         var header = _.cloneDeep(object[key]);
-        object[key] = function(currentPage, pageCount) { return self._executeFooter(header, currentPage, pageCount.toString()); };
+        object[key] = function(currentPage, pageCount){
+            // Recovery of all breaks
+          var pages_rupture = _.filter(self.dd.content, function(p) { return p.text === "new_document"; });
+          // sort breaks by page number
+          var ruptures_sort_by_num_page = _.sortBy(pages_rupture, [function(p) {
+            if (p.positions && p.positions[0] && p.positions[0].pageNumber) {
+              return p.positions[0].pageNumber;
+            }
+          }]);
+          // current page is a breaking page ?
+          var current_page_rupture = _.find( ruptures_sort_by_num_page , function(p) {
+            if (p.positions && p.positions[0] && p.positions[0].pageNumber) {
+              return currentPage === p.positions[0].pageNumber + 1;
+            }
+          });
+          // if broken page and or if the first page => we assign the pagecount
+          if (current_page_rupture && _.has(current_page_rupture, 'positions[0].pageNumber') || currentPage === 1) {
+            if (ruptures_sort_by_num_page && ruptures_sort_by_num_page[self.next_index_header] && _.has(ruptures_sort_by_num_page[self.next_index_header], 'positions[0].pageNumber')) {
+              // get page count
+              self.page_count_header = ruptures_sort_by_num_page[self.next_index_header].positions[0].pageNumber - self.num_page_rupture_header;
+              self.num_page_rupture_header = ruptures_sort_by_num_page[self.next_index_header].positions[0].pageNumber;
+            }
+            // case current page is the last page but page count not equal to 1
+            if (currentPage === self.dd.content[self.dd.content.length -1].positions[0].pageNumber && self.page_count_header !== 1) {
+              self.current_page_header++;
+            } else {
+              self.current_page_header = 1;
+            }
+            self.next_index_header++;
+          } else {
+            self.current_page_header++;
+          }
+          if ((self.remove_header_first_page && self.current_page_header != 1) || (!self.remove_header_first_page) ) {
+            return self._executeHeader(header, self.current_page_header, self.page_count_header);
+          }
+        };
         cb();
       } else {
         cb();
@@ -135,41 +170,14 @@ class salesDocument {
       cb();
     }).fail(cb);
   }
-  _executeHeader(model, currentpage) {
-    var self = this;
+
+  removeHeaderFirstPage() {
+    this.remove_header_first_page = true;
+  }
+
+  _executeHeader(model, currentpage, pageCount) {
     var model_header_or_footer = _.cloneDeep(model);
-    // Recovery of all breaks
-    var pages_rupture = _.filter(self.dd.content, function(p) { return p.text === "new_document"; });
-    // sort breaks by page number
-    var ruptures_sort_by_num_page = _.sortBy(pages_rupture, [function(p) {
-      if (p.positions && p.positions[0] && p.positions[0].pageNumber) {
-        return p.positions[0].pageNumber;
-      }
-    }]);
-    // current page is a breaking page ?
-    var current_page_rupture = _.find(ruptures_sort_by_num_page, function(p) {
-      if (p.positions && p.positions[0] && p.positions[0].pageNumber) {
-        return currentpage === p.positions[0].pageNumber + 1;
-      }
-    });
-    // if broken page and or if the first page => we assign the pagecount
-    if (current_page_rupture && _.has(current_page_rupture, 'positions[0].pageNumber') || currentpage === 1) {
-      if (ruptures_sort_by_num_page && ruptures_sort_by_num_page[self.next_index_header] && _.has(ruptures_sort_by_num_page[self.next_index_header], 'positions[0].pageNumber')) {
-        // get page count
-        self.page_count_header = ruptures_sort_by_num_page[self.next_index_header].positions[0].pageNumber - self.num_page_rupture_header;
-        self.num_page_rupture_header = ruptures_sort_by_num_page[self.next_index_header].positions[0].pageNumber;
-      }
-      // case current page is the last page but page count not equal to 1
-      if (currentpage === self.dd.content[self.dd.content.length - 1].positions[0].pageNumber && self.page_count_footer !== 1) {
-        self.current_page_header++;
-      } else {
-        self.current_page_header = 1;
-      }
-      self.next_index_header++;
-    } else {
-      self.current_page_header++;
-    }
-    return this._recursiveFindObjectSynchrone(model_header_or_footer, self.current_page_header, self.page_count_header);
+    return this._recursiveFindObjectSynchrone(model_header_or_footer, currentpage, pageCount);
   }
 
   _executeFooter(model, currentpage) {
@@ -280,6 +288,7 @@ class salesDocument {
   //
   _recursiveTagHeadersColumnsSynchrone(object) {
     var self = this;
+
     for (var i = 0; i < object.body.length; i++) {
       object.body[i].forEach(function(colonne) {
         if (colonne.table) {
@@ -289,6 +298,7 @@ class salesDocument {
             colonne.text = self._replaceTag(colonne.text);
           }
           if (colonne.fillColor) {
+
             colonne.fillColor = self._replaceTag(colonne.fillColor);
           }
         }
@@ -301,6 +311,7 @@ class salesDocument {
   // Next it will take the data name we need to replace tag
   // For each line in data we create a new line in table and replace all tag with the correct data
   _formatTable(object, cb) {
+
     var self = this;
     var lineType = {};
     // Create object with all line model
@@ -313,9 +324,18 @@ class salesDocument {
       }
     });
 
+    if (!object.dataName) {
+      if (object.headerRows) {
+        object.dataName = this._recoverDataName(object.body[object.headerRows]);
+      } else {
+        object.dataName = this._recoverDataName(object.body[0]);
+      }
+    }
+
     // translate columns headers
     for (var i = 0; i < object.headerRows; i++) {
       object.body[i].forEach(function(colonne) {
+
         if (colonne.table) {
           self._recursiveTagHeadersColumnsSynchrone(colonne.table);
         } else {
@@ -353,6 +373,7 @@ class salesDocument {
         asynk.each(newLine, (column, cb) => {
           if (_.has(column, 'table.body') && column.table.body[0]) {
             var nameObjetLigneArray = this._recoverDataName(column.table.body[0]);
+
             // when line is array of data
             if (line[nameObjetLigneArray]) {
               if (line[nameObjetLigneArray] && line[nameObjetLigneArray][0]) {
@@ -388,7 +409,7 @@ class salesDocument {
               column.text = this._replaceTagLine(column.text, count);
             }
             if (column.rowSpan) {
-              column.rowSpan = this._data[dataName].length;
+              column.rowSpan = this._data[object.dataName].length;
             }
           }
 
@@ -412,6 +433,7 @@ class salesDocument {
                 if (_.has(column, 'table.body') && column.table.body[0]) {
                   self._addArrayWithData(column.table.body, count);
                 }
+
                 // cas when line is a text
                 if (column.text) {
                   // verify if tag is present, if true replace tag with data
@@ -619,11 +641,19 @@ class salesDocument {
 
     tableBody.forEach(function(arrayLine) {
       arrayLine.forEach(function(column) {
+
         if (column.text) {
           column.text = self._replaceTagLine(column.text, count);
         } else {
           if (column.table) {
             self._addArrayWithData(column.table.body, count);
+          }
+        }
+        if (column.fillColor) {
+          if (typeof column.fillColor === 'string' || column.fillColor instanceof String) {
+            if (column.fillColor.indexOf(self._tag) != -1) {
+              column.fillColor = self._replaceTag(column.fillColor);
+            }
           }
         }
       });
@@ -639,6 +669,7 @@ class salesDocument {
       if (ligneToClone) {
         var arrayLineToClone = _.cloneDeep(arrayLine);
         arrayLineToClone.forEach(function(column) {
+
           if (column.text) {
             column.text.replace(self._regexTag, function(match, tag, insideTag) {
               var propertyLine = insideTag.split(".");
