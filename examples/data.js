@@ -1,6 +1,6 @@
 var data = {
   libelles_traduits: {
-    dontlot: "Dont"
+    dontlot: "whose"
   },
   footer: "un footer",
   rose: "#ff80ff",
@@ -53,7 +53,7 @@ var data = {
       type: "normal"
     },
     {
-      lots: [ { type: 'lot', qte: '1.000', libelle: 'Non attribué' } ],
+      lots: [ { type: 'lot', qte: '1.000', libelle: 'not attributed' } ],
       type: "lot"
     },
     {
